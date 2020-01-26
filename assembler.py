@@ -18,8 +18,8 @@ class Assembler:
                      'addi': '001',
                      'nand': '010',
                      'lui': '011',
-                     'sw': '101',
-                     'lw': '100',
+                     'sw': '100',
+                     'lw': '101',
                      'beq': '110',
                      'jalr': '111'}
     
@@ -174,7 +174,7 @@ class Assembler:
                         continue
                 
             # Handle RRR-type
-            elif line['opcode'] == 'and' or line['opcode'] == 'nand':
+            elif line['opcode'] == 'add' or line['opcode'] == 'nand':
                 self._object_lines.append(self._opcode_table[line['opcode']] + 
                                           self._register_table[line['opcode_arg1'].replace('r','')] +
                                           self._register_table[line['opcode_arg2'].replace('r','')] +
