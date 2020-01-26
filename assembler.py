@@ -36,17 +36,13 @@ class Assembler:
     def __init__(self, asm_source, verbose = 0):
         self.verbosity = verbose
         self.filename  = asm_source
-        for line in open(asm_source, 'r'):
+        for line in open(self.filename, 'r'):
            # Remove blank and commented-out lines
            if line[0] == '#':
                continue
            elif line.isspace():
                continue
            self._asm_lines.append(self._parse_asm(line))
-                
-           
-           #if len(input_line) or input_line[0] != '#':
-           #    self._asm_lines.append(self._parse_asm(line))
                 
     def _parse_asm(self, line):
         tokens = {}
@@ -60,8 +56,6 @@ class Assembler:
         parsed_line = parsed_line.replace('     ', ' ')
         # Add terminating space
         parsed_line = parsed_line + ' '
-        # Make lowercase
-        #parsed_line = parsed_line.lower()
         # Handle labels
         if ':' in parsed_line:
             tokens['label_name'] = parsed_line.split(':', 1)[0]
@@ -252,7 +246,7 @@ class Assembler:
             print('\nexiting...')
         with open(self.filename[:-4]+'.o', 'w') as f:
             for line in self._object_lines:
-                f.write(line+'\n')
+                f.write('0x{0:0{1}X}'.format(int(line, 2), 4)+'\n')
         return
     
 if __name__ == '__main__':
