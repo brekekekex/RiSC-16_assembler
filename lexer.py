@@ -135,7 +135,18 @@ class Lexer:
                 # Handle jalr
                 elif (tokenized_line.getStructure()[instruction_pos].get_text() == 'jalr') and len(tokenized_line.getStructure()) > argument_pos:
                     tokenized_line.replaceTokenwith(argument_pos, SignedImmediateToken(source_line_num, tokenized_line.getStructure()[argument_pos].get_text()))
-                
+        # Identify directive arguments
+        if directive_flag:
+            if tokenized_line.getStructure()[directive_pos].get_text() == '.fill':
+                tokenized_line.replaceTokenwith(directive_pos+2, SignedImmediateToken(source_line_num, tokenized_line.getStructure()[directive_pos+2].get_text(),fill_mode = True))
+            elif tokenized_line.getStructure()[directive_pos].get_text() == '.space':
+                tokenized_line.replaceTokenwith(directive_pos+2, UnsignedImmediateToken(source_line_num, tokenized_line.getStructure()[directive_pos+2].get_text()))
+            elif tokenized_line.getStructure()[directive_pos].get_text() == 'lli' or tokenized_line.getStructure()[directive_pos].get_text() == 'movi':
+                tokenized_line.replaceTokenwith(directive_pos+2, RegisterToken(source_line_num, tokenized_line.getStructure()[directive_pos+2].get_text()))
+                tokenized_line.replaceTokenwith(directive_pos+4, SignedImmediateToken(source_line_num, tokenized_line.getStructure()[directive_pos+4].get_text()))
+            
+            
+        
         print(tokenized_line)
 
 
@@ -244,6 +255,8 @@ class UnsignedImmediateToken(TextToken):
                 print('WARNING: Symbolic immediate prefixed with 0x found in unsigned immediate token at [Source line: ' + str(line_num) + ']')
             elif any(char.lower() not in {'0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'} for char in value[2:]):
                 self.symbolic = True
+            elif value[1].isalpha() or value[2].isalpha():
+                self.symbolic = True
         else:
             if any(char.isalpha() for char in value):
                 self.symbolic = True
@@ -283,7 +296,10 @@ class UnsignedImmediateToken(TextToken):
         return 'Unsigned Immediate Token (' + self.text + ')'
     
 class SignedImmediateToken(TextToken):
-    def __init__(self, line_num, value):
+    def __init__(self, line_num, value, fill_mode = False):
+        self.fill_mode = fill_mode
+        if not self.fill_mode:
+            print('hit')
         # check for negative
         self.negative = False
         self.mag = value
@@ -299,6 +315,8 @@ class SignedImmediateToken(TextToken):
                 self.symbolic = True
                 print('WARNING: Symbolic immediate prefixed with 0x found in signed immediate token at [Source line: ' + str(line_num) + ']')
             elif any(char.lower() not in {'0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'} for char in self.mag[2:]):
+                self.symbolic = True
+            elif self.mag[1].isalpha() or self.mag[2].isalpha():
                 self.symbolic = True
         else:
             if any(char.isalpha() for char in self.mag):
@@ -336,7 +354,7 @@ class SignedImmediateToken(TextToken):
                 self.integer = int(self.mag, 10)
             else:
                 self.integer = int(self.mag, 16)
-            if self.integer > 63 or self.integer < -64:
+            if (self.integer > 63 or self.integer < -64) and not self.fill_mode:
                 raise ValueError('Value out of bounds in signed immediate token at [Source line: ' + str(line_num)+ ']')
             else:
                 TextToken.__init__(self, line_num, str(self.integer))              
@@ -344,5 +362,5 @@ class SignedImmediateToken(TextToken):
     def __str__(self):
         return 'Signed Immediate Token (' + self.text + ')'
         
-text = Lexer('j: jalr 3 5 03 # comment')
+text = Lexer('.fill 300000')
 
