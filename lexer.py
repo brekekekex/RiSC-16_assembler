@@ -212,6 +212,10 @@ class LabelToken(TextToken):
             raise SyntaxError('Empty name found in label token at [Source line: ' + str(line_num)+ ']')
         TextToken.__init__(self, line_num, label)
     
+    def setLocation(self, programaddress):
+        self.location = programaddress
+        return
+    
     def __str__(self):
         return 'Label Token (' + self.text + ')'
     
@@ -242,125 +246,115 @@ class RegisterToken(TextToken):
 
 class UnsignedImmediateToken(TextToken):
     def __init__(self, line_num, value):
-        # check for negative
+        self.mag = value
+        self.octal = False
+        self.dec = False
+        self.hex = False
+
         if value[0] == '-':
-            raise SyntaxError('Negative value in unsigned immediate token at [Source line: ' + str(line_num)+ ']')
-        # check for symbolic
-        self.symbolic = False
-        if value == '0x':
-            raise SyntaxError('Invalid symbolic immediate found in unsigned immediate token at [Source line: ' + str(line_num)+ ']')
-        elif len(value) > 2:
-            if (value[0] == '0' and value[1] == 'x') and any(char.lower() not in {'0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'} for char in value[2:]):
-                self.symbolic = True
-                print('WARNING: Symbolic immediate prefixed with 0x found in unsigned immediate token at [Source line: ' + str(line_num) + ']')
-            elif any(char.lower() not in {'0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'} for char in value[2:]):
-                self.symbolic = True
-            elif value[1].isalpha() or value[2].isalpha():
-                self.symbolic = True
+            raise ValueError('Negative unsigned immediate found in unsigned immediate token at [Source line: ' + str(line_num)+ ']')
+        if self.mag.startswith('0') and not self.mag.startswith('0x'):
+            self.symbolic = False
+            self.octal = True
+        elif self.mag.startswith('0x'):
+            self.symbolic = False
+            self.hex = True
+        elif self.mag.isdigit():
+            self.symbolic = False
+            self.dec = True
         else:
-            if any(char.isalpha() for char in value):
-                self.symbolic = True
+            self.symbolic = True
+        
         if self.symbolic:
-            TextToken.__init__(self, line_num, value)
+            TextToken.__init__(self, line_num, self.mag) 
         else:
-            self.decimal = False
-            self.octal = False
-            self.hex = False
-            # Handle octal, decimal, hex
-            if len(value) == 1:
-                self.decimal = True
-            elif len(value) > 2:
-                if value[0] == '0' and value[1] == 'x':
-                    self.hex = True
-                elif value[0] == '0' and value[1:].isdigit():
-                    self.octal = True
-                else:
-                    self.decimal = True
-            else:
-                if value[0] == '0' and value[1].isdigit():
-                    self.octal = True
-                else:
-                    self.decimal = True
             if self.octal:
-                self.integer = int(value, 8)
-            elif self.decimal:
-                self.integer = int(value, 10)
+                try:
+                    self.integer = int(self.mag, 8)
+                except:
+                    raise ValueError('Invalid value found in unsigned immediate token at [Source line: ' + str(line_num)+ ']')
+            elif self.dec:
+                try:
+                    self.integer = int(self.mag, 10)
+                except:
+                    raise ValueError('Invalid value found in unsigned immediate token at [Source line: ' + str(line_num)+ ']')
             else:
-                self.integer = int(value, 16)
-            if self.integer > 1023:
+                try:
+                    self.integer = int(self.mag, 16)
+                except:
+                    raise ValueError('Invalid value found in unsigned immediate token at [Source line: ' + str(line_num)+ ']')
+
+            if (self.integer > 1023 or self.integer < 0):
                 raise ValueError('Value out of bounds in unsigned immediate token at [Source line: ' + str(line_num)+ ']')
             else:
                 TextToken.__init__(self, line_num, str(self.integer))
-               
+                
+           
     def __str__(self):
-        return 'Unsigned Immediate Token (' + self.text + ')'
-    
+        if self.symbolic:
+            return 'Symbolic Unsigned Immediate Token (' + self.text + ')'
+        else:
+            return 'Unsigned Immediate Token (' + self.text + ')'
+        
+        
 class SignedImmediateToken(TextToken):
     def __init__(self, line_num, value, fill_mode = False):
         self.fill_mode = fill_mode
-        if not self.fill_mode:
-            print('hit')
-        # check for negative
         self.negative = False
         self.mag = value
+        self.octal = False
+        self.dec = False
+        self.hex = False
+
         if value[0] == '-':
+            self.symbolic = False
+            self.negative = True
             self.mag = value[1:]
-            self.negative= True
-        # check for symbolic
-        self.symbolic = False
-        if self.mag == '0x':
-            raise SyntaxError('Invalid symbolic immediate found in signed immediate token at [Source line: ' + str(line_num)+ ']')
-        elif len(self.mag) > 2:
-            if (self.mag[0] == '0' and self.mag[1] == 'x') and any(char.lower() not in {'0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'} for char in self.mag[2:]):
-                self.symbolic = True
-                print('WARNING: Symbolic immediate prefixed with 0x found in signed immediate token at [Source line: ' + str(line_num) + ']')
-            elif any(char.lower() not in {'0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'} for char in self.mag[2:]):
-                self.symbolic = True
-            elif self.mag[1].isalpha() or self.mag[2].isalpha():
-                self.symbolic = True
+        if self.mag.startswith('0') and not self.mag.startswith('0x'):
+            self.symbolic = False
+            self.octal = True
+        elif self.mag.startswith('0x'):
+            self.symbolic = False
+            self.hex = True
+        elif self.mag.isdigit():
+            self.symbolic = False
+            self.dec = True
         else:
-            if any(char.isalpha() for char in self.mag):
-                self.symbolic = True
+            self.symbolic = True
+        
         if self.symbolic:
-            if self.negative:
-                raise SyntaxError('Invalid symbolic immediate found in signed immediate token at [Source line: ' + str(line_num)+ ']')
-            TextToken.__init__(self, line_num, self.mag)
+            TextToken.__init__(self, line_num, value) 
         else:
-            self.decimal = False
-            self.octal = False
-            self.hex = False
-            # Handle octal, decimal, hex
-            if len(self.mag) == 1:
-                self.decimal = True
-            elif len(self.mag) > 2:
-                if self.mag[0] == '0' and self.mag[1] == 'x':
-                    self.hex = True
-                elif self.mag[0] == '0' and self.mag[1:].isdigit():
-                    self.octal = True
-                else:
-                    self.decimal = True
-            else:
-                if self.mag[0] == '0' and self.mag[1].isdigit():
-                    self.octal = True
-                else:
-                    self.decimal = True
             if self.negative:
                 self.mag = '-' + self.mag
-            else:
-                self.mag = self.mag
             if self.octal:
-                self.integer = int(self.mag, 8)
-            elif self.decimal:
-                self.integer = int(self.mag, 10)
+                try:
+                    self.integer = int(self.mag, 8)
+                except:
+                    raise ValueError('Invalid value found in signed immediate token at [Source line: ' + str(line_num)+ ']')
+            elif self.dec:
+                try:
+                    self.integer = int(self.mag, 10)
+                except:
+                    raise ValueError('Invalid value found in signed immediate token at [Source line: ' + str(line_num)+ ']')
             else:
-                self.integer = int(self.mag, 16)
+                try:
+                    self.integer = int(self.mag, 16)
+                except:
+                    raise ValueError('Invalid value found in signed immediate token at [Source line: ' + str(line_num)+ ']')
+
             if (self.integer > 63 or self.integer < -64) and not self.fill_mode:
                 raise ValueError('Value out of bounds in signed immediate token at [Source line: ' + str(line_num)+ ']')
             else:
-                TextToken.__init__(self, line_num, str(self.integer))              
+                TextToken.__init__(self, line_num, str(self.integer))
+                
         
     def __str__(self):
-        return 'Signed Immediate Token (' + self.text + ')'
+        if self.symbolic:
+            return 'Symbolic Signed Immediate Token (' + self.text + ')'
+        else:
+            return 'Signed Immediate Token (' + self.text + ')'
         
-text = Lexer('.fill 300000')
+        
+text = Lexer('label: lui r0 0a')
 
