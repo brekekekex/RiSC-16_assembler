@@ -1,3 +1,40 @@
+from lexer import *
+from symbolizer import *
+from generator import *
+
+class Assembler:
+    def __init__(self, source_filepath, verbosity = False, writeHex = False):
+        self.source_filepath = source_filepath
+        self.target_filepath = source_filepath.split('.asm')[0] + '.o'
+        self.verbosity = verbosity
+        self.writeHex = writeHex
+        
+    def assemble(self):
+        myLexer = Lexer(self.source_filepath)
+        self.tokenized_file = myLexer.Lex()
+        mySymbolizer = Symbolizer(self.tokenized_file)
+        self.symbol_table = mySymbolizer.Symbolize()
+        myGenerator = Generator(self.tokenized_file, self.symbol_table)
+        self.object_code = myGenerator.Generate()
+        
+if __name__ == '__main__':
+    import argparse
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename')
+    parser.add_argument('--verbose', required = False, action='store_true')
+    parser.add_argument('--hex', required = False, action='store_true')
+    argument = parser.parse_args()
+
+    myAssembler = Assembler(argument.filename, argument.verbose, argument.hex)
+    myAssembler.assemble()
+    
+ 
+
+
+"""
+
+
 DEFAULT_START_PROG_ADDR = 0
 # Fixed-length instructions (one word)
 DEFAULT_INSTR_SIZE = 1
@@ -248,19 +285,5 @@ class Assembler:
             for line in self._object_lines:
                 f.write('0x{0:0{1}X}'.format(int(line, 2), 4)+'\n')
         return
-    
-if __name__ == '__main__':
-    import argparse
-    
-    parser = argparse.ArgumentParser()
-    parser.add_argument('filename')
-    parser.add_argument('--verbose', required = False, action='store_true')
-    argument = parser.parse_args()
-    
-    if argument.verbose:
-        assembler = Assembler(argument.filename, argument.verbose)
-    else:
-        assembler = Assembler(argument.filename)
-    assembler.assemble()
-    
+"""
     

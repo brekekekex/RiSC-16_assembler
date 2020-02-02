@@ -1,9 +1,16 @@
 
 class Lexer:
-    def __init__(self, line):
-        
-        self.line = line.split('#')[0].strip()
-        self._Tokenize(self.line, 1)
+    def __init__(self, source_filepath):
+        self.source_filepath = source_filepath
+    
+    def Lex(self):
+        self.tokenized_file = []
+        for line_num, source_line in enumerate(open(self.source_filepath, 'r')):
+            if source_line[0] == '#' or source_line.isspace():
+                continue
+            else:
+                self.tokenized_file.append(self._Tokenize(source_line.split('#')[0].strip(), line_num))
+        return self.tokenized_file
         
     def _Tokenize(self, source_line, source_line_num):
         directive_table = {'nop', 'halt', 'lli', 'movi', '.fill', '.space'}
@@ -145,9 +152,7 @@ class Lexer:
                 tokenized_line.replaceTokenwith(directive_pos+2, RegisterToken(source_line_num, tokenized_line.getStructure()[directive_pos+2].get_text()))
                 tokenized_line.replaceTokenwith(directive_pos+4, SignedImmediateToken(source_line_num, tokenized_line.getStructure()[directive_pos+4].get_text()))
             
-            
-        
-        print(tokenized_line)
+        return tokenized_line
 
 
 class TokenizedLine:
@@ -166,6 +171,12 @@ class TokenizedLine:
     def replaceTokenwith(self, index, Token):
         self.structure[index] = Token
         
+    def containsDirective(self):
+        for position, Token in enumerate(self.structure):
+            if isinstance(Token, DirectiveToken):
+                return position
+        return -1
+        
     def __repr__(self):
         listing = ''
         for Token in self.structure:
@@ -175,7 +186,7 @@ class TokenizedLine:
 class SyntaxToken:
     def __init__(self, line_num):
         self.line_num = line_num
-        if self.line_num <= 0:
+        if self.line_num < 0:
             raise IndexError('Invalid syntax token index at [Source line: ' + str(self.line_num) + ']')
         
     def get_line_num(self):
@@ -355,6 +366,4 @@ class SignedImmediateToken(TextToken):
         else:
             return 'Signed Immediate Token (' + self.text + ')'
         
-        
-text = Lexer('label: lui r0 0a')
 
