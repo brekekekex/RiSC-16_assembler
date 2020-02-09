@@ -1,2 +1,2 @@
-	lw	1,0,count	# load reg1 with 5 (uses symbolic address)
-count: add 0 0 0
+addi r3 r3 -4
+label: nand r3 r3 r2

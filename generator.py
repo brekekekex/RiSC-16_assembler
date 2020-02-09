@@ -32,6 +32,11 @@ class Generator:
                     object_line = object_line + self._RRI[tokenized_line.getStructure()[action_index].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+2].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+4].get_text()]
+                    # jalr check
+                    if tokenized_line.getStructure()[action_index].get_text() == 'jalr' and action_index+6 > len(tokenized_line.getStructure()):
+                        object_line = object_line + '0000000'
+                        self.object_code.append(object_line)
+                        continue
                     # Handle symbolic immediate
                     if tokenized_line.getStructure()[action_index+6].symbolic:
                         if tokenized_line.getStructure()[action_index+6].get_text() in self.symbol_table:
