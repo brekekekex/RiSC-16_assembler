@@ -16,6 +16,7 @@ class Assembler:
         self.symbol_table = mySymbolizer.Symbolize()
         myGenerator = Generator(self.tokenized_file, self.symbol_table)
         self.object_code = myGenerator.Generate()
+        print(self.object_code)
         
 if __name__ == '__main__':
     import argparse
