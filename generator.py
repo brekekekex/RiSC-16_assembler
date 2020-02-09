@@ -64,7 +64,32 @@ class Generator:
                         object_line = object_line + self._u_10imm_to_bin(int(tokenized_line.getStructure()[action_index+4].get_text()))
                         self.object_code.append(object_line)
                         continue
-                    
+            if isinstance(tokenized_line.getStructure()[action_index], DirectiveToken):
+                if tokenized_line.getStructure()[action_index].get_text() == 'nop':
+                    object_line = '0'*16
+                    self.object_code.append(object_line)
+                    continue
+                if tokenized_line.getStructure()[action_index].get_text() == 'halt':
+                    # non zero jalr immediate
+                    object_line = '111' + '000' + '000' + '1000000'
+                    self.object_code.append(object_line)
+                    continue
+                if tokenized_line.getStructure()[action_index].get_text() == '.fill':
+                    # Handle symbolic immediate
+                    if tokenized_line.getStructure()[action_index+2].symbolic:
+                        if tokenized_line.getStructure()[action_index+2].get_text() in self.symbol_table:
+                            object_line = self._u_16imm_to_bin(self.symbol_table[tokenized_line.getStructure()[action_index+2].get_text()])
+                            self.object_code.append(object_line)
+                            continue
+                        else:
+                            raise SyntaxError('Undefined label in symbolic immediate token at [Source line: ' + str(tokenized_line.getStructure()[action_index+2].get_line_num())+ ']')
+                    else:
+                        if int(tokenized_line.getStructure()[action_index+2].get_text()) > (2**15-1) or int(tokenized_line.getStructure()[action_index+2].get_text()) < (-2**15):
+                            raise ValueError('Invalid value found in signed immediate token at [Source line: ' + str(tokenized_line.getStructure()[action_index+2].get_line_num())+ ']')
+                        object_line = self._s_16imm_to_bin(int(tokenized_line.getStructure()[action_index+2].get_text()))
+                        self.object_code.append(object_line)
+                        continue
+                
         return self.object_code 
                         
     def _s_7imm_to_bin(self, s_int):
@@ -74,4 +99,10 @@ class Generator:
     def _u_10imm_to_bin(self, u_int):
         return '{0:{fill}{width}b}'.format(u_int, fill = '0', width = 10)
         
+    def _u_16imm_to_bin(self, u_int):
+        return '{0:{fill}{width}b}'.format(u_int, fill = '0', width = 16)
+        
+    def _s_16imm_to_bin(self, s_int):
+        # Via user Xiang, https://stackoverflow.com/a/34887286 
+        return '{0:{fill}{width}b}'.format((s_int + 2**16) % 2**16, fill = '0', width = 16)
             
