@@ -153,8 +153,6 @@ class Generator:
                             self.object_code.append(object_line)
                             continue
                         
-                
-                
         return self.object_code 
                         
     def _s_7imm_to_bin(self, s_int):
