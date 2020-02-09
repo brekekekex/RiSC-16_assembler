@@ -28,7 +28,7 @@ These syntax tokens allow the lexer to condition on partially-parsed assembly an
 
 Some error-detection is also built into the symbolizer and generator: for example, the generator will issue a SyntaxError if it encounters an undefined label.
 
-All errors come with an associated error message and a reference to the source line where they were detected (for now, all errors are critical and the assembler will abort upon detecting one). 
+All errors come with an associated error message and a reference to the source line where they were detected (for now, all errors are critical and the assembler will immediately abort upon encountering them). 
 
 ## Usage
 Clone the repository to your local machine with
