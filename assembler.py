@@ -36,8 +36,7 @@ class Assembler:
                 if self.writeBin:
                     print('0x{0:0{1}X}'.format(pc,4)[2:])
                 else: 
-                    print('0x{0:0{1}X}'.format(pc,4)[2:] + '\t' + '0x{0:0{1}X}'.format(int(line,2),4)[2:])
-            
+                    print('0x{0:0{1}X}'.format(pc,4)[2:] + '\t' + '0x{0:0{1}X}'.format(int(line,2),4)[2:])        
         print('\nWriting to ' + self.target_filepath + '...\n')
         f = open(self.target_filepath, "w")
         for line in self.object_code:
@@ -55,10 +54,10 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
-    parser.add_argument('--vl', required = False, action='store_true')
-    parser.add_argument('--vs', required = False, action='store_true')
-    parser.add_argument('--novg', required = False, action='store_false')
-    parser.add_argument('--bin', required = False, action='store_true')
+    parser.add_argument('--vl', required = False, action='store_true', help='verbose lexer--show tokenization')
+    parser.add_argument('--vs', required = False, action='store_true', help='verbose symoblizer--show symbol table')
+    parser.add_argument('--novg', required = False, action='store_false', help='no verbose generator--do not output object code to console (will still write to file)')
+    parser.add_argument('--bin', required = False, action='store_true', help='write to target file in binary')
     argument = parser.parse_args()
 
     myAssembler = Assembler(argument.filename, argument.vl, argument.vs, argument.novg, argument.bin)
