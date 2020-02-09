@@ -43,7 +43,7 @@ class Generator:
                     
                     
                     
-                    
+                
                     # jalr check
                     if tokenized_line.getStructure()[action_index].get_text() == 'jalr' and action_index+6 > len(tokenized_line.getStructure()):
                         object_line = object_line + '0000000'

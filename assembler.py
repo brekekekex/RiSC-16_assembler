@@ -1,6 +1,10 @@
 from lexer import *
 from symbolizer import *
 from generator import *
+import colorama
+from colorama import Fore, Style
+import sys
+sys.tracebacklimit = 0
 
 class Assembler:
     def __init__(self, source_filepath, verbose_lexer = False, verbose_symbolizer = False, verbose_generator = True, writeBin = False):
@@ -13,31 +17,36 @@ class Assembler:
         
     def assemble(self):
         myLexer = Lexer(self.source_filepath)
-        print('\nTokenizing assembly file...')
+        print(Fore.BLUE + '\nTokenizing assembly file...')
+        print(Fore.RED)
         self.tokenized_file = myLexer.Lex()
         if self.verbose_lexer:
-            print('\nDumping tokenized file...')
+            print(Fore.BLUE + '\nDumping tokenized file...')
             for line_num, line in enumerate(self.tokenized_file):
-                print('[Source Line: ' + str(line_num) + ']')
+                print(Fore.GREEN + '[Source Line: ' + str(line_num) + ']')
                 print(line)
         mySymbolizer = Symbolizer(self.tokenized_file)
-        print('\nSymbolizing assembly file...')
+        print(Fore.BLUE + 'Symbolizing assembly file...')
+        print(Fore.RED)
         self.symbol_table = mySymbolizer.Symbolize()
         if self.verbose_symbolizer:
-            print('\nDumping symbol table...\n')
-            print(self.symbol_table)
+            print(Fore.BLUE + '\nDumping symbol table...\n')
+            print(Fore.GREEN + str(self.symbol_table) + '\n')
         myGenerator = Generator(self.tokenized_file, self.symbol_table)
-        print('\nGenerating object file...')
+        print(Fore.BLUE + 'Generating object file...')
+        print(Fore.RED)
         self.object_code = myGenerator.Generate()
         if self.verbose_generator:
-            print('\nDumping generated code...')
-            print('\n[PC]\t[Instruction]')
+            print(Fore.BLUE + '\nDumping generated code...')
+            print(Fore.GREEN + '\n[PC]\t[Instruction]')
             for pc, line in enumerate(self.object_code):
                 if self.writeBin:
                     print('0x{0:0{1}X}'.format(pc,4)[2:] + '\t' + line)
                 else: 
-                    print('0x{0:0{1}X}'.format(pc,4)[2:] + '\t' + '0x{0:0{1}X}'.format(int(line,2),4)[2:])        
-        print('\nWriting to ' + self.target_filepath + '...\n')
+                    print('0x{0:0{1}X}'.format(pc,4)[2:] + '\t' + '0x{0:0{1}X}'.format(int(line,2),4)[2:])
+            print('\n')
+        print(Fore.BLUE + 'Writing to ' + self.target_filepath + '...\n')
+        print(Fore.RED)
         f = open(self.target_filepath, "w")
         for line in self.object_code:
             if self.writeBin:
@@ -45,7 +54,7 @@ class Assembler:
             else: 
                 f.write('0x{0:0{1}X}'.format(int(line,2),4)[2:] + '\n')
         f.close()
-        
+        print(Fore.BLUE + 'Done')
     
         
         
