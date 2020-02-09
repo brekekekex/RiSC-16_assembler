@@ -1,2 +1,1 @@
-.fill label
-label: nop
+lli 4 34

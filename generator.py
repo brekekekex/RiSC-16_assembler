@@ -89,6 +89,28 @@ class Generator:
                         object_line = self._s_16imm_to_bin(int(tokenized_line.getStructure()[action_index+2].get_text()))
                         self.object_code.append(object_line)
                         continue
+                if tokenized_line.getStructure()[action_index].get_text() == '.space':
+                    for i in range(int(tokenized_line.getStructure()[action_index+2].get_text())):
+                        self.object_code.append('0'*16)
+                    continue
+                if tokenized_line.getStructure()[action_index].get_text() == 'lli':
+                    object_line = object_line + self._RRI['addi']
+                    object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+2].get_text()]*2
+                    # Handle symbolic immediate
+                    if tokenized_line.getStructure()[action_index+4].symbolic:
+                        if tokenized_line.getStructure()[action_index+4].get_text() in self.symbol_table:
+                            object_line = object_line + '0' + self._s_7imm_to_bin(self.symbol_table[tokenized_line.getStructure()[action_index+4].get_text()] & 63)[-6:]
+                            self.object_code.append(object_line)
+                            continue
+                        else:
+                            raise SyntaxError('Undefined label in symbolic immediate token at [Source line: ' + str(tokenized_line.getStructure()[action_index+4].get_line_num())+ ']')
+                    else:
+                        object_line = object_line + '0' + self._s_7imm_to_bin(int(tokenized_line.getStructure()[action_index+4].get_text()) & 63)
+                        self.object_code.append(object_line)
+                        continue
+                
+                
+                
                 
         return self.object_code 
                         
