@@ -25,7 +25,7 @@ class Generator:
                     object_line = object_line + self._RRR[tokenized_line.getStructure()[action_index].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+2].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+4].get_text()]
-                    object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+6].get_text()]
+                    object_line = '0000' + object_line + self._registers[tokenized_line.getStructure()[action_index+6].get_text()]
                     self.object_code.append(object_line)
                     continue
                 if tokenized_line.getStructure()[action_index].get_text() in self._RRI:
