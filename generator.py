@@ -71,7 +71,7 @@ class Generator:
                     continue
                 if tokenized_line.getStructure()[action_index].get_text() == 'halt':
                     # non zero jalr immediate
-                    object_line = '111' + '000' + '000' + '1000000'
+                    object_line = '111' + '000' + '000' + '1110001'
                     self.object_code.append(object_line)
                     continue
                 if tokenized_line.getStructure()[action_index].get_text() == '.fill':
