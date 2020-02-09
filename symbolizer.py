@@ -9,7 +9,6 @@ class Symbolizer:
         self.currentAddress = 0
         self.symbol_table = {}
         
-        
     def Symbolize(self):
         for tokenizedLine in self.tokenizedFile:
             if isinstance(tokenizedLine.getStructure()[0], LabelToken):
