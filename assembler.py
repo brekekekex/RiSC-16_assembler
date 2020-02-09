@@ -24,7 +24,7 @@ class Assembler:
         print('\nSymbolizing assembly file...')
         self.symbol_table = mySymbolizer.Symbolize()
         if self.verbose_symbolizer:
-            print('\nDumping symbol table...')
+            print('\nDumping symbol table...\n')
             print(self.symbol_table)
         myGenerator = Generator(self.tokenized_file, self.symbol_table)
         print('\nGenerating object file...')
