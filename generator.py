@@ -3,7 +3,7 @@ from symbolizer import *
 
 class Generator:
     _RRR = {'add': '000', 'nand': '010'}
-    _RRI = {'addi': '001', 'sw': '101', 'lw': '100', 'beq': '110', 'jalr': '111'}
+    _RRI = {'addi': '001', 'sw': '100', 'lw': '101', 'beq': '110', 'jalr': '111'}
     _RI = {'lui': '011'}
     
     _registers = {'0': '000', '1': '001', '2': '010', '3': '011', '4': '100', '5': '101', '6': '110', '7': '111'}
@@ -25,7 +25,7 @@ class Generator:
                     object_line = object_line + self._RRR[tokenized_line.getStructure()[action_index].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+2].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+4].get_text()]
-                    object_line = '0000' + object_line + self._registers[tokenized_line.getStructure()[action_index+6].get_text()]
+                    object_line = object_line + '0000' + self._registers[tokenized_line.getStructure()[action_index+6].get_text()]
                     self.object_code.append(object_line)
                     continue
                 if tokenized_line.getStructure()[action_index].get_text() in self._RRI:

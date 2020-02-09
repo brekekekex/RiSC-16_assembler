@@ -34,7 +34,7 @@ class Assembler:
             print('\n[PC]\t[Instruction]')
             for pc, line in enumerate(self.object_code):
                 if self.writeBin:
-                    print('0x{0:0{1}X}'.format(pc,4)[2:])
+                    print('0x{0:0{1}X}'.format(pc,4)[2:] + '\t' + line)
                 else: 
                     print('0x{0:0{1}X}'.format(pc,4)[2:] + '\t' + '0x{0:0{1}X}'.format(int(line,2),4)[2:])        
         print('\nWriting to ' + self.target_filepath + '...\n')
