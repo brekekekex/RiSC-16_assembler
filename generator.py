@@ -32,6 +32,18 @@ class Generator:
                     object_line = object_line + self._RRI[tokenized_line.getStructure()[action_index].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+2].get_text()]
                     object_line = object_line + self._registers[tokenized_line.getStructure()[action_index+4].get_text()]
+                    # beq symbolic check
+                    if tokenized_line.getStructure()[action_index+6].symbolic and tokenized_line.getStructure()[action_index].get_text() == 'beq':
+                        if tokenized_line.getStructure()[action_index+6].get_text() in self.symbol_table:
+                            object_line = object_line + self._s_7imm_to_bin(self.symbol_table[tokenized_line.getStructure()[action_index+6].get_text()]-1-len(self.object_code))
+                            self.object_code.append(object_line)
+                            continue
+                        else:
+                            raise SyntaxError('Undefined label in symbolic immediate token at [Source line: ' + str(tokenized_line.getStructure()[action_index+6].get_line_num())+ ']')
+                    
+                    
+                    
+                    
                     # jalr check
                     if tokenized_line.getStructure()[action_index].get_text() == 'jalr' and action_index+6 > len(tokenized_line.getStructure()):
                         object_line = object_line + '0000000'
