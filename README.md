@@ -4,7 +4,7 @@ The Ridiculously-Simple Computer Instruction Set Architecture is a 16-bit, pedag
 
 The RiSC-16 is an 8-opcode and 8-register ISA with halfword (2-byte) addresses. The complete architecture is detailed in the four-page document found [here](https://user.eng.umd.edu/~blj/RiSC/RiSC-isa.pdf). 
 
-As far I know, no assembler had yet been written for RISC-16 in Python by the time I began this project. This was just as well; I hope to eventually implement and simulate this ISA in Verilog, for which I would need an assembler, anyway. While I could have written this one in C, in general, I find it much easier to parse and emit text in Python, not to mention that object-oriented programming lends itself well to tokenization.
+As far as I know, no assembler had yet been written for RISC-16 in Python by the time I began this project. This was just as well; I hope to eventually implement and simulate this ISA in Verilog, for which I would need an assembler, anyway. While I could have written this one in C, in general, I find it much easier to parse and emit text in Python, not to mention that object-oriented programming lends itself quite naturally to tokenization.
 
 ## Features
 This assembler essentially falls into the two-pass category, which I more or less learned about after skimming Chapter 1 of David Salomon's [*Assemblers and Loaders*](http://www.davidsalomon.name/assem.advertis/AssemAd.html). The two passes are described as follows:
@@ -55,6 +55,74 @@ optional arguments:
 ```
 
 ## Tests
+
+### Generic Lexer 
+Assemble (notice irregular whitespace, delimitation, and comments):
+```
+caller:   beq r0 r0,  callee # unconditional jump (not using jalr)
+  callee: halt  # stop machine, dump core
+```
+Output with --vl:
+
+![alt text](https://github.com/brekekekex/RiSC-16_assembler/blob/master/tests/lexer_test.png)
+
+### Generic Symbolizer
+Assemble:
+```
+null: nop
+one:  .fill 1
+two:  .fill 2
+three: .fill 3
+four: .fill 4
+five: .fill 5
+```
+Output with --vs:
+
+![alt text](https://github.com/brekekekex/RiSC-16_assembler/blob/master/tests/symbolizer_test.png)
+
+### Generic Generator
+Assemble:
+```
+# Taken from classweb.ece.umd.edu/enee646.F2011/p1.pdf
+  lw 1, 0, count # load reg1 with 5 (uses symbolic address)
+  lw 2, 1, 2     # load reg2 with -1 (uses numeric address)
+start: add 1, 1, 2  # decrement reg1 (could have been 'addi 1, 1, -1')
+  beq 0, 1, start # changed from bne to beq
+done: halt
+  nop
+count: .fill 5
+neg1:  .fill -1
+startAddr: .fill start
+```
+Output:
+
+![alt text](https://github.com/brekekekex/RiSC-16_assembler/blob/master/tests/generator_test.png)
+
+### Generic SyntaxErrors
+Assemble:
+```
+foo: beq r0, r0, bar
+```
+Output:
+
+![alt text](https://github.com/brekekekex/RiSC-16_assembler/blob/master/tests/label_error.png)
+
+Assemble:
+```
+add r0, r1
+```
+Output:
+
+![alt text](https://github.com/brekekekex/RiSC-16_assembler/blob/master/tests/syntax_error.png)
+
+### Generic ValueError
+Assemble:
+```
+  addi r1, r0, 34234
+```
+Output:
+
+![alt text](https://github.com/brekekekex/RiSC-16_assembler/blob/master/tests/value_error.png)
 
 
 
