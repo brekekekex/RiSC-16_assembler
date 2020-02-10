@@ -18,7 +18,7 @@ The first is accomplished by the *symbolizer*, the second by the *generator*. In
 * *LabelToken*&mdash;an alphanumeric name followed by a colon
 * *DirectiveToken*&mdash;any one of the assembler directives nop, halt, lli, movi, .fill, and .space
 * *InstructionToken*&mdash;recognized opcodes
-* *RegisterToken*&mdash;registers may be preceded by a 'r'
+* *RegisterToken*&mdash;registers may be preceded by an 'r'
 * *Un/SignedImmediateToken*&mdash;may be symbolic and may also be specified in octal, decimal, or hexadecimal
 
 These syntax tokens allow the lexer to condition on partially-parsed assembly and issue errors:
@@ -37,7 +37,7 @@ Clone the repository to your local machine with
 git clone https://github.com/brekekekex/RiSC-16_assembler.git
 ```
 
-Running the assembler is fairly self-explanatory:
+Operating the assembler is fairly self-explanatory:
 ```linux
 python assembler.py -h
 usage: assembler.py [-h] [--vl] [--vs] [--novg] [--bin] filename
