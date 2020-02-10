@@ -55,6 +55,7 @@ class Assembler:
                 f.write('0x{0:0{1}X}'.format(int(line,2),4)[2:] + '\n')
         f.close()
         print(Fore.BLUE + 'Done')
+        print(Style.RESET_ALL)
     
         
         
